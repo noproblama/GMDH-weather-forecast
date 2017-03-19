@@ -4,13 +4,14 @@
 #include <cmath>
 #include <iostream>
 using namespace std;
-
-vactor<double> findVectorOfCoefB(vector<int> &, vector<double> &, vector<double> &);
-vector<vector<double>> transpose(vector<vector<double>> &);
-vector<vector<double>> multiply(vector<vector<double>> &, vector<vector<double>> &);
-
 vector<int> DEFAULT_COEFF_B(7, 1);
+
+vector<double> findVectorOfCoefB(const vector<int> &, const vector<double> &, const vector<double> &);
+vector<vector<double> > transpose(const vector<vector<double> > &);
 vector<double> calculate(const vector<int>&, double, const vector<int>& = DEFAULT_COEFF_B);
+
+
+// vector<vector<double>> multiply(const vector<vector<double>> &, const vector<vector<double>> &);
 
 int main(int argc, char * argv[]) {
     int numtasks, taskid;
@@ -28,7 +29,7 @@ int main(int argc, char * argv[]) {
 
     if (!ifile.is_open()) {
         cerr << "There was a problem opening the input file!\n";
-        exit(1);
+        return 0;
     }
 
     double t = 0.0;
@@ -47,45 +48,83 @@ int main(int argc, char * argv[]) {
    vector<int> s(5,4);
     //cout << firstT.size() << secondT.size()<< endl;
     calculate(s, 2);
+
+
+    // int test_l[] = {1, 6};
+    // double text_xa[] = {1.0, 1.2, 1.3, 1.4, 1.5};
+    // double text_ya[] = {1.1, 1.2, 1.3, 1.4, 1.5};
+
+    // vector<int> L(test_l, test_l + sizeof(test_l) / sizeof(int));
+    // vector<double> x(text_xa, text_xa + sizeof(text_xa) / sizeof(double));
+    // vector<double> y(text_ya, text_ya + sizeof(text_ya) / sizeof(double));
+
+
+    // vector<double> b (findVectorOfCoefB(L, x, y));
+
+
     MPI_Finalize();
+
+    return 1;
 }
 
 // Find coefficients of b for the model
 // L - indexes of used functions
 // XA - 1d vector of x from A
 // YA - 1d vector of y from A
-vactor<double> findVectorOfCoefB(vector<int> &L, vector<double> &XA, vector<double> &YA) {
-    vector<double>  calculated_bs, 
-                    X_functions,    // matrix of the model's functions results
-                    X_transposed; 
-    for (vector<double>::iterator x = XA.begin(); i != XA.end(); ++x)
-    {   
-        X_functions.push_back(calculate(L, *x));
-    }
+vector<double> findVectorOfCoefB(const vector<int> &L, const vector<double> &XA, const vector<double> &YA) {
+    vector<double>  calculated_bs (7, 0);
+    vector<vector<double> >     X_functions,    // matrix of the model's functions results
+                                X_transposed; 
+    for (int i = 0; i < XA.size(); ++i)
+    {
+        X_functions.push_back(calculate(L, XA[i]));
+    }                    
+
+    // cout << "COUNTED ONE" << endl;
+    // for(int i = 0; i < X_functions.size(); i++){
+    //     for (int j = 0; j < X_functions[0].size(); ++j)
+    //     {
+    //         cout << X_functions[i][j] << " ";
+    
+    //     }
+    //     cout << endl;
+    // }
+    // cout << endl;
 
     X_transposed = transpose(X_functions);
 
-    calculated_bs = multiply(multiply(multiply(X_transposed, X_functions),X_transposed), YA);
+    // cout << "TRANSPOSED ONE" << endl;
+    // for(int i = 0; i < X_transposed.size(); i++){
+    //     for (int j = 0; j < X_transposed[0].size(); ++j)
+    //     {
+    //         cout << X_transposed[i][j] << " ";
+    
+    //     }
+    //     cout << endl;
+    // }
+
+
+    // calculated_bs = multiply(multiply(multiply(X_transposed, X_functions),X_transposed), YA);
 
     return calculated_bs;
 }
 
-// Transpose 2d matrix
-vector<vector<double>> transpose(vector<vector<double>> &matrix) {
+// Transpose a 2d matrix
+vector<vector<double> > transpose(const vector<vector<double> > &matrix) {
     int size[] = {matrix.size(), matrix[0].size()};
-    vector<vector<double>> transponedMatrix(size[1], vector<double> (size[0], 0));
+    vector<vector<double> > transposedMatrix(size[1], vector<double> (size[0], 0));
     for (int i = 0; i < matrix.size(); ++i)
     {
         for (int j = 0; j < matrix[i].size(); ++j)
         {
-            transponedMatrix[j][i] = matrix[i][j];
+            transposedMatrix[j][i] = matrix[i][j];
         }
     }
-    return transponedMatrix;
+    return transposedMatrix;
 };
 
-vector<vector<double>> multiply(vector<vector<double>> &matrixA, vector<vector<double>> &matrixB) {
-    vector<vector<double>> multipliedM;
+vector<vector<double> > multiply(const vector<vector<double> > &matrixA, const vector<vector<double> > &matrixB) {
+    vector<vector<double> > multipliedM;
     return multipliedM;
 }
 
