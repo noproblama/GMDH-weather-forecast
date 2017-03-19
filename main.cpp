@@ -1,4 +1,4 @@
-#include "mpi.h"
+// #include "mpi.h"
 #include <fstream>
 #include <vector>
 #include <cmath>
@@ -9,7 +9,8 @@
 #include <numeric>
 using namespace std;
 
-vector<double> DEFAULT_COEFF_B(7, 1);
+const vector<double> DEFAULT_COEFF_B(7, 1);
+const double PI = 3.14;
 
 vector<double> findVectorOfCoefB(const vector<int> &, const vector<double> &, const vector<double> &);
 vector<vector<double> > transpose(const vector<vector<double> > &);
@@ -26,9 +27,9 @@ double squareComparation(const vector<int>&, const vector<double>&, const vector
 int main(int argc, char * argv[]) {
     int numtasks, taskid;
 
-    MPI_Init(&argc, &argv); 
-	MPI_Comm_size(MPI_COMM_WORLD, &numtasks); 
-	MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
+    // MPI_Init(&argc, &argv); 
+	// MPI_Comm_size(MPI_COMM_WORLD, &numtasks); 
+	// MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
 
     vector<double> yA;
     vector<double> xA;
@@ -48,10 +49,10 @@ int main(int argc, char * argv[]) {
         indxCounter++;
         if(yA.size() < yB.size()) {
             yA.push_back(t);
-            xA.push_back((double)indxCounter);
+            xA.push_back(indxCounter);
         } else {
             yB.push_back(t);
-            xB.push_back((double)indxCounter);
+            xB.push_back(indxCounter);
         }
     }
             // cout << yA.size() << " ";
@@ -65,13 +66,13 @@ int main(int argc, char * argv[]) {
     // }
 
 
-   // vector<vector<double> > r1(5, vector<double>(3, 1));
+     // vector<vector<double> > r1(5, vector<double>(3, 1));
    // vector<vector<double> > r2(3, vector<double>(7, 1));
    // vector<vector<double> > r3(7, vector<double>(3, 1));
+
    //(r1*r2)*r3;
    
     //cout << firstT.size() << secondT.size()<< endl;
-
     // double text_xa[] = {1.0, 1.2, 1.3, 1.4, 1.5};
     // double text_ya[] = {1.1, 1.2, 1.3, 1.4, 1.5};
 
@@ -112,12 +113,12 @@ int main(int argc, char * argv[]) {
         square_comparations.push_back(squareComparation(L[i], Bs[i], xB, yB));
     }
     
-    // for (int i = 0; i < square_comparations.size(); ++i)
-    // {
-    //     cout << square_comparations[i] << " ";
-    // }
+    for (int i = 0; i < square_comparations.size(); ++i)
+    {
+        cout << square_comparations[i] << " ";
+    }
 
-    // cout << endl;
+    cout << endl;
 
     int min_pos = distance(square_comparations.begin(),min_element(square_comparations.begin(),square_comparations.end()));
     cout << "The best model is the model #" << min_pos + 1 << " (" << square_comparations[min_pos] << ") "<<" with b: ";
@@ -137,7 +138,7 @@ int main(int argc, char * argv[]) {
     // cout << endl;
 
 
-    MPI_Finalize();
+    // MPI_Finalize();
 }
 
 // Find coefficients of b for the model
@@ -212,38 +213,38 @@ vector<vector<double> > transpose(const vector<vector<double> > &matrix) {
     return transposedMatrix;
 };
 
-vector<double> calculate(const vector<int>& indxFunc, double x, const vector<double>& b) {
 
-    vector<double> calculatedVal;
+vector<double> calculate(const vector<int>& indxFunc, double x, const vector<double>& b) {
+    vector<double> calcVal;
 
     for(int i = 0; i < indxFunc.size(); i++) {
         switch(indxFunc[i]) {
             case 1:
-                calculatedVal.push_back(b[0] * 1);
+                calcVal.push_back(b[0] * 1);
             break;
             
             case 2:
-                calculatedVal.push_back(b[1] * sin(2 * 3.14 * x / 365));
+                calcVal.push_back(b[1] * sin(2 * PI * x / 365));
             break;
 
             case 3:
-               calculatedVal.push_back(b[2] * cos(2 * 3.14 * x / 365));
+               calcVal.push_back(b[2] * cos(2 * PI * x / 365));
             break;
 
             case 4:
-                 calculatedVal.push_back(b[3] * sin(24 * 3.14 * x / 365));
+                 calcVal.push_back(b[3] * sin(24 * PI * x / 365));
             break;
 
             case 5:
-                 calculatedVal.push_back(b[4] * cos(24 * 3.14 * x / 365));
+                 calcVal.push_back(b[4] * cos(24 * PI * x / 365));
             break;
 
             case 6:
-                calculatedVal.push_back(b[5] * sin(12 * 3.14 * x / 365));
+                calcVal.push_back(b[5] * sin(12 * PI * x / 365));
             break;
 
             case 7:
-                calculatedVal.push_back(b[6] * cos(12 * 3.14 * x / 365));
+                calcVal.push_back(b[6] * cos(12 * PI * x / 365));
             break;
 
             default:
@@ -251,12 +252,12 @@ vector<double> calculate(const vector<int>& indxFunc, double x, const vector<dou
         }
     }
 
-    // for(int i = 0; i < calculatedVal.size(); i++)
-    //     cout << calculatedVal[i] << " ";
+    // for(int i = 0; i < calcVal.size(); i++)
+    //     cout << calcVal[i] << " ";
 
     // cout << endl;
 
-    return calculatedVal;
+    return calcVal;
 }
 
 vector<vector<double> > operator*(const vector<vector<double> >& a, const vector<vector<double> >& b)
