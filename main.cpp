@@ -13,6 +13,10 @@ vector<vector<double> > transpose(const vector<vector<double> > &);
 vector<vector<double> > operator*(const vector<vector<double> >& a, const vector<vector<double> >& b);
 vector<double> calculate(const vector<int>&, double, const vector<int>& = DEFAULT_COEFF_B);
 
+double CalcDeterminant(vector<vector<double> > , int);
+vector<vector<double> > GetMinor(vector<vector<double> >, int, int, int);
+vector<vector<double> > MatrixInversion(vector<vector<double> >);
+
 int main(int argc, char * argv[]) {
     int numtasks, taskid;
 
@@ -48,7 +52,7 @@ int main(int argc, char * argv[]) {
    vector<vector<double> > r1(5, vector<double>(3, 1));
    vector<vector<double> > r2(3, vector<double>(7, 1));
    vector<vector<double> > r3(7, vector<double>(3, 1));
-   (r1*r2)*r3;
+   //(r1*r2)*r3;
    
     //cout << firstT.size() << secondT.size()<< endl;
 
@@ -63,8 +67,6 @@ int main(int argc, char * argv[]) {
 
     vector<double> b (findVectorOfCoefB(L, x, y));
 
-
-    //calculate(s, 2.0);
     MPI_Finalize();
 }
 
@@ -212,4 +214,88 @@ vector<vector<double> > operator*(const vector<vector<double> >& a, const vector
     // cout << endl;
 
     return  result;
+}
+
+// matrix inversioon
+vector<vector<double> > MatrixInversion(vector<vector<double> > matrix)
+{
+    
+    int order = matrix.size();
+    vector<vector<double> > res(order, vector<double>(order));
+    // get the determinant of matrix
+    double det = 1.0 / CalcDeterminant(matrix, order);
+ 
+    // memory allocation
+    vector<vector<double> > minorM(order-1, vector<double>(order-1));
+
+ 
+    for(int j=0;j<order;j++)
+    {
+        for(int i=0;i<order;i++)
+        {
+            // get the co-factor (matrix) of A(j,i)
+            minorM = GetMinor(matrix,j,i,order);
+            res[i][j] = det*CalcDeterminant(minorM,order-1);
+            if( (i+j)%2 == 1)
+                res[i][j] = -res[i][j];
+        }
+    }
+
+    return res;
+}
+ 
+// calculate the cofactor of element (row,col)
+vector<vector<double> > GetMinor(vector<vector<double> > src, int row, int col, int order)
+{
+    // indicate which col and row is being copied to dest
+    int colCount=0,rowCount=0;
+    vector<vector<double> > res(order, vector<double>(order));
+ 
+    for(int i = 0; i < order; i++ )
+    {
+        if( i != row )
+        {
+            colCount = 0;
+            for(int j = 0; j < order; j++ )
+            {
+                // when j is not the element
+                if( j != col )
+                {
+                    res[rowCount][colCount] = src[i][j];
+                    colCount++;
+                }
+            }
+            rowCount++;
+        }
+    }
+ 
+    return res;
+}
+ 
+// Calculate the determinant recursively.
+double CalcDeterminant(vector<vector<double> > matrix, int order)
+{
+    //order must be >= 0
+    //stop the recursion when matrix is a single element
+    if( order == 1 )
+        return matrix[0][0];
+ 
+    // the determinant value
+    double det = 0;
+ 
+    // allocate the cofactor matrix
+    vector<vector<double> > minorM(order-1, vector<double>(order - 1));
+ 
+    for(int i = 0; i < order; i++ )
+    {
+        // get minor of element (0,i)
+        minorM = GetMinor( matrix, 0, i , order);
+        // the recusion is here!
+ 
+        det += (i%2==1?-1.0:1.0) * matrix[0][i] * CalcDeterminant(minorM,order-1);
+        
+    }
+
+ 
+    return det;
 }
