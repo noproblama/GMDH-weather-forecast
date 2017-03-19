@@ -10,11 +10,8 @@ vector<int> DEFAULT_COEFF_B(7, 1);
 
 vector<double> findVectorOfCoefB(const vector<int> &, const vector<double> &, const vector<double> &);
 vector<vector<double> > transpose(const vector<vector<double> > &);
-vector<vector<double>> operator*(const vector<vector<double> >& a, const vector<vector<double>>& b);
+vector<vector<double> > operator*(const vector<vector<double> >& a, const vector<vector<double> >& b);
 vector<double> calculate(const vector<int>&, double, const vector<int>& = DEFAULT_COEFF_B);
-
-
-// vector<vector<double>> multiply(const vector<vector<double>> &, const vector<vector<double>> &);
 
 int main(int argc, char * argv[]) {
     int numtasks, taskid;
@@ -55,16 +52,16 @@ int main(int argc, char * argv[]) {
    
     //cout << firstT.size() << secondT.size()<< endl;
 
-    // int test_l[] = {1, 6};
-    // double text_xa[] = {1.0, 1.2, 1.3, 1.4, 1.5};
-    // double text_ya[] = {1.1, 1.2, 1.3, 1.4, 1.5};
+    int test_l[] = {1, 6};
+    double text_xa[] = {1.0, 1.2, 1.3, 1.4, 1.5};
+    double text_ya[] = {1.1, 1.2, 1.3, 1.4, 1.5};
 
-    // vector<int> L(test_l, test_l + sizeof(test_l) / sizeof(int));
-    // vector<double> x(text_xa, text_xa + sizeof(text_xa) / sizeof(double));
-    // vector<double> y(text_ya, text_ya + sizeof(text_ya) / sizeof(double));
+    vector<int> L(test_l, test_l + sizeof(test_l) / sizeof(int));
+    vector<double> x(text_xa, text_xa + sizeof(text_xa) / sizeof(double));
+    vector<double> y(text_ya, text_ya + sizeof(text_ya) / sizeof(double));
 
 
-    // vector<double> b (findVectorOfCoefB(L, x, y));
+    vector<double> b (findVectorOfCoefB(L, x, y));
 
 
     //calculate(s, 2.0);
@@ -76,39 +73,52 @@ int main(int argc, char * argv[]) {
 // XA - 1d vector of x from A
 // YA - 1d vector of y from A
 vector<double> findVectorOfCoefB(const vector<int> &L, const vector<double> &XA, const vector<double> &YA) {
-    vector<double>  calculated_bs (7, 0);
     vector<vector<double> >     X_functions,    // matrix of the model's functions results
-                                X_transposed; 
+                                X_transposed,
+                                YT(1, YA),
+                                Y;
     for (int i = 0; i < XA.size(); ++i)
     {
         X_functions.push_back(calculate(L, XA[i]));
     }                    
 
-    // cout << "COUNTED ONE" << endl;
-    // for(int i = 0; i < X_functions.size(); i++){
-    //     for (int j = 0; j < X_functions[0].size(); ++j)
-    //     {
-    //         cout << X_functions[i][j] << " ";
+    cout << "COUNTED ONE" << endl;
+    for(int i = 0; i < X_functions.size(); i++){
+        for (int j = 0; j < X_functions[0].size(); ++j)
+        {
+            cout << X_functions[i][j] << " ";
     
-    //     }
-    //     cout << endl;
-    // }
-    // cout << endl;
+        }
+        cout << endl;
+    }
+    cout << endl;
 
     X_transposed = transpose(X_functions);
 
-    // cout << "TRANSPOSED ONE" << endl;
-    // for(int i = 0; i < X_transposed.size(); i++){
-    //     for (int j = 0; j < X_transposed[0].size(); ++j)
-    //     {
-    //         cout << X_transposed[i][j] << " ";
+    cout << "TRANSPOSED ONE" << endl;
+    for(int i = 0; i < X_transposed.size(); i++){
+        for (int j = 0; j < X_transposed[0].size(); ++j)
+        {
+            cout << X_transposed[i][j] << " ";
     
-    //     }
-    //     cout << endl;
+        }
+        cout << endl;
+    }
+
+    Y = transpose(YT);
+    vector<double> calculated_bs (transpose((((X_transposed*X_functions)*X_transposed)*Y))[0]);
+
+    // cout<< ((X_transposed*X_functions)*X_transposed) << endl;
+    // cout<< Y[0].size() << endl;
+
+    // cout << "bs calculated:" << endl;
+
+    // for (int j = 0; j < calculated_bs.size(); ++j)
+    // {
+    //     cout << calculated_bs[j] << " ";
+
     // }
-
-
-    // calculated_bs = multiply(multiply(multiply(X_transposed, X_functions),X_transposed), YA);
+    // cout << endl;
 
     return calculated_bs;
 }
@@ -190,16 +200,16 @@ vector<vector<double> > operator*(const vector<vector<double> >& a, const vector
         }
     }
 
-    for(size_t i = 0; i < result.size(); i++)
-    {
-        for(size_t j = 0; j < result[0].size(); j++)
-        {
-            cout << result[i][j] << " ";
-        }
-        cout << endl;
-    }
+    // for(size_t i = 0; i < result.size(); i++)
+    // {
+    //     for(size_t j = 0; j < result[0].size(); j++)
+    //     {
+    //         cout << result[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
 
-    cout << endl;
+    // cout << endl;
 
     return  result;
 }
