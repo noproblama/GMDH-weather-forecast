@@ -3,11 +3,14 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#include <cstdlib>
 using namespace std;
+
 vector<int> DEFAULT_COEFF_B(7, 1);
 
 vector<double> findVectorOfCoefB(const vector<int> &, const vector<double> &, const vector<double> &);
 vector<vector<double> > transpose(const vector<vector<double> > &);
+vector<vector<double>> operator*(const vector<vector<double> >& a, const vector<vector<double>>& b);
 vector<double> calculate(const vector<int>&, double, const vector<int>& = DEFAULT_COEFF_B);
 
 
@@ -29,7 +32,7 @@ int main(int argc, char * argv[]) {
 
     if (!ifile.is_open()) {
         cerr << "There was a problem opening the input file!\n";
-        return 0;
+        exit(0);
     }
 
     double t = 0.0;
@@ -45,10 +48,12 @@ int main(int argc, char * argv[]) {
         }
     }
 
-   vector<int> s(5,4);
+   vector<vector<double> > r1(5, vector<double>(3, 1));
+   vector<vector<double> > r2(3, vector<double>(7, 1));
+   vector<vector<double> > r3(7, vector<double>(3, 1));
+   (r1*r2)*r3;
+   
     //cout << firstT.size() << secondT.size()<< endl;
-    calculate(s, 2);
-
 
     // int test_l[] = {1, 6};
     // double text_xa[] = {1.0, 1.2, 1.3, 1.4, 1.5};
@@ -62,9 +67,8 @@ int main(int argc, char * argv[]) {
     // vector<double> b (findVectorOfCoefB(L, x, y));
 
 
+    //calculate(s, 2.0);
     MPI_Finalize();
-
-    return 1;
 }
 
 // Find coefficients of b for the model
@@ -111,7 +115,7 @@ vector<double> findVectorOfCoefB(const vector<int> &L, const vector<double> &XA,
 
 // Transpose a 2d matrix
 vector<vector<double> > transpose(const vector<vector<double> > &matrix) {
-    int size[] = {matrix.size(), matrix[0].size()};
+    int size[] = {(int)matrix.size(), (int)matrix[0].size()};
     vector<vector<double> > transposedMatrix(size[1], vector<double> (size[0], 0));
     for (int i = 0; i < matrix.size(); ++i)
     {
@@ -122,11 +126,6 @@ vector<vector<double> > transpose(const vector<vector<double> > &matrix) {
     }
     return transposedMatrix;
 };
-
-vector<vector<double> > multiply(const vector<vector<double> > &matrixA, const vector<vector<double> > &matrixB) {
-    vector<vector<double> > multipliedM;
-    return multipliedM;
-}
 
 vector<double> calculate(const vector<int>& indxFunc, double x, const vector<int>& b) {
 
@@ -173,4 +172,34 @@ vector<double> calculate(const vector<int>& indxFunc, double x, const vector<int
     // cout << endl;
 
     return calculatedVal;
+}
+
+vector<vector<double> > operator*(const vector<vector<double> >& a, const vector<vector<double> >& b)
+{
+    vector<vector<double> > result(a.size(), vector<double>(b[0].size()));
+    for(size_t i = 0; i < a.size(); i++)
+    {
+        for(size_t j = 0; j < b[0].size(); j++)
+        {
+            double sum = 0;
+            for(size_t k = 0; k < a[0].size(); k++)
+            {
+                sum += a[i][k] * b[k][j];
+            }
+            result[i][j] = sum;
+        }
+    }
+
+    for(size_t i = 0; i < result.size(); i++)
+    {
+        for(size_t j = 0; j < result[0].size(); j++)
+        {
+            cout << result[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    cout << endl;
+
+    return  result;
 }
