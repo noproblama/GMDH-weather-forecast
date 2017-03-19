@@ -1,4 +1,4 @@
-// #include "mpi.h"
+#include "mpi.h"
 #include <fstream>
 #include <vector>
 #include <cmath>
@@ -22,14 +22,14 @@ vector<vector<double> > GetMinor(vector<vector<double> >, int, int, int);
 vector<vector<double> > inverse(vector<vector<double> >);
 string binary(unsigned);
 double squareComparation(const vector<int>&, const vector<double>&, const vector<double>&, const vector<double>&);
-
+double differenceComparation(const vector<int>&, const vector<double>&, const vector<double>&, const vector<double>&, const vector<double>&);
 
 int main(int argc, char * argv[]) {
     int numtasks, taskid;
 
-    // MPI_Init(&argc, &argv); 
-	// MPI_Comm_size(MPI_COMM_WORLD, &numtasks); 
-	// MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
+    MPI_Init(&argc, &argv); 
+	MPI_Comm_size(MPI_COMM_WORLD, &numtasks); 
+	MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
 
     vector<double> yA;
     vector<double> xA;
@@ -55,9 +55,6 @@ int main(int argc, char * argv[]) {
             xB.push_back(indxCounter);
         }
     }
-            // cout << yA.size() << " ";
-
-            // cout << yB.size() << " ";
 
 
     // for (int i = 0; i < yB.size(); ++i)
@@ -113,21 +110,60 @@ int main(int argc, char * argv[]) {
         square_comparations.push_back(squareComparation(L[i], Bs[i], xB, yB));
     }
     
-    for (int i = 0; i < square_comparations.size(); ++i)
-    {
-        cout << square_comparations[i] << " ";
-    }
+    // for (int i = 0; i < square_comparations.size(); ++i)
+    // {
+    //     cout << square_comparations[i] << " ";
+    // }
 
-    cout << endl;
+    // cout << endl;
 
     int min_pos = distance(square_comparations.begin(),min_element(square_comparations.begin(),square_comparations.end()));
-    cout << "The best model is the model #" << min_pos + 1 << " (" << square_comparations[min_pos] << ") "<<" with b: ";
+    cout << "The best model by SQR criteria is the model #" << min_pos + 1 << " (" << square_comparations[min_pos] << ") "<<" with b: ";
     for (int j = 0; j < Bs[min_pos].size(); ++j)
     {
         cout << Bs[min_pos][j] << " ";
 
     }
-    cout << endl; 
+    cout << "// with model functions #: ";
+
+    for (int j = 0; j < L[min_pos].size(); ++j)
+    {
+        cout << L[min_pos][j] << " ";
+
+    }
+    cout << endl;  
+
+
+
+
+    vector<double> difference_comparations;
+    for (int i = 0; i < Bs.size(); ++i)
+    {
+        difference_comparations.push_back(differenceComparation(L[i], Bs[i], xA, xB, yB));
+    }
+    
+    // for (int i = 0; i < difference_comparations.size(); ++i)
+    // {
+    //     cout << difference_comparations[i] << " ";
+    // }
+
+    cout << endl;
+
+    min_pos = distance(difference_comparations.begin(),min_element(difference_comparations.begin(),difference_comparations.end()));
+    cout << "The best model by DIFFERENCE criteria is the model #" << min_pos + 1 << " (" << difference_comparations[min_pos] << ") "<<" with b: ";
+    for (int j = 0; j < Bs[min_pos].size(); ++j)
+    {
+        cout << Bs[min_pos][j] << " ";
+
+    }
+    cout << "// with model functions #: ";
+
+    for (int j = 0; j < L[min_pos].size(); ++j)
+    {
+        cout << L[min_pos][j] << " ";
+
+    }
+    cout << endl;  
 
 
     // for (int j = 0; j < b.size(); ++j)
@@ -138,7 +174,7 @@ int main(int argc, char * argv[]) {
     // cout << endl;
 
 
-    // MPI_Finalize();
+    MPI_Finalize();
 }
 
 // Find coefficients of b for the model
@@ -408,6 +444,33 @@ double squareComparation(const vector<int> &L, const vector<double> &b, const ve
     }
 
     result = model_minus_table_sqr_sum / table_sqr_sum;
+    
+    return result;
+}
+
+double differenceComparation(   const vector<int> &L, 
+                                const vector<double> &b, 
+                                const vector<double> &xA, 
+                                const vector<double> &xB, 
+                                const vector<double> &yB) {
+    double  result,
+            models_diff_sqr_sum,
+            table_sqr_sum;
+
+    for (int i = 0; i < (xA.size() < xB.size() ? xA.size() : xB.size()); ++i)
+    {
+        vector<double> model_res_vector_A = calculate(L, xA[i], b);
+        vector<double> model_res_vector_B = calculate(L, xB[i], b);
+        double  model_res_A = accumulate(model_res_vector_A.begin(), model_res_vector_A.end(), 0);
+        double  model_res_B = accumulate(model_res_vector_B.begin(), model_res_vector_B.end(), 0);
+
+        models_diff_sqr_sum += pow(model_res_A-model_res_B, 2);
+
+        double  table_res = yB[i];    
+        table_sqr_sum += pow(table_res, 2);
+    }
+
+    result = models_diff_sqr_sum / table_sqr_sum;
     
     return result;
 }
