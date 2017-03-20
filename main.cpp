@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <string>
 #include <algorithm>
@@ -10,7 +11,7 @@
 using namespace std;
 
 const vector<double> DEFAULT_COEFF_B(7, 1);
-const double PI = 3.14;
+const double PI = 3.14159265359;
 
 vector<double> findVectorOfCoefB(const vector<int> &, const vector<double> &, const vector<double> &);
 vector<vector<double> > transpose(const vector<vector<double> > &);
@@ -35,8 +36,10 @@ int main(int argc, char * argv[]) {
     vector<double> xA;
     vector<double> yB;
     vector<double> xB;
+    vector<double> yTable;
+    vector<double> xTable;
     
-    ifstream ifile("test.txt");
+    ifstream ifile("test2.txt");
 
     if (!ifile.is_open()) {
         cerr << "There was a problem opening the input file!\n";
@@ -54,6 +57,8 @@ int main(int argc, char * argv[]) {
             yB.push_back(t);
             xB.push_back(indxCounter);
         }
+        xTable.push_back(indxCounter);
+        yTable.push_back(t);
     }
 
     // for (int i = 0; i < yB.size(); ++i)
@@ -90,10 +95,10 @@ int main(int argc, char * argv[]) {
         }
     }
 
-    vector<vector<double> > Bs;
+    vector<vector<double> > bA;
     for (int i = 0; i < L.size(); ++i)
     {
-        Bs.push_back(vector<double> (findVectorOfCoefB(L[i], xA, yA)));  
+        bA.push_back(vector<double> (findVectorOfCoefB(L[i], xA, yA)));  
 
         // for (int j = 0; j < Bs.size(); ++j)
         // {
@@ -103,58 +108,85 @@ int main(int argc, char * argv[]) {
         // cout << endl; 
     }
 
-    // vector<double> square_comparations;
-    // for (int i = 0; i < Bs.size(); ++i)
-    // {
-    //     square_comparations.push_back(squareComparation(L[i], Bs[i], xB, yB));
-    // }
+    vector<vector<double> > bB;
+    for (int i = 0; i < L.size(); ++i)
+    {
+        bB.push_back(vector<double> (findVectorOfCoefB(L[i], xB, yB)));  
+
+        // for (int j = 0; j < Bs.size(); ++j)
+        // {
+        //     cout << Bs[i][j] << " ";
+
+        // }
+        // cout << endl; 
+    }
+
+
+    vector<double> square_comparations;
+    for (int i = 0; i < bA.size(); ++i)
+    {
+        square_comparations.push_back(squareComparation(L[i], bA[i], xB, yB));
+    }
     
-    // // for (int i = 0; i < square_comparations.size(); ++i)
-    // // {
-    // //     cout << square_comparations[i] << " ";
-    // // }
-
-    // // cout << endl;
-
-    // int min_pos = distance(square_comparations.begin(),min_element(square_comparations.begin(),square_comparations.end()));
-    // cout << "The best model by SQR criteria is the model #" << min_pos + 1 << " (" << square_comparations[min_pos] << ") "<<" with b: ";
-    // for (int j = 0; j < Bs[min_pos].size(); ++j)
+    // for (int i = 0; i < square_comparations.size(); ++i)
     // {
-    //     cout << Bs[min_pos][j] << " ";
-
+    //     cout << square_comparations[i] << " ";
     // }
-    // cout << "// with model functions #: ";
 
-    // for (int j = 0; j < L[min_pos].size(); ++j)
-    // {
-    //     cout << L[min_pos][j] << " ";
+    cout << endl;
 
-    // }
-    // cout << endl;  
+    int min_pos = distance(square_comparations.begin(),min_element(square_comparations.begin(),square_comparations.end()));
+    cout << "The best model by SQR criteria is the model #" << min_pos + 1 << " (" << square_comparations[min_pos] << ") "<<" with b: ";
+    for (int j = 0; j < bA[min_pos].size(); ++j)
+    {
+        cout << bA[min_pos][j] << " ";
+
+    }
+    cout << "// with model functions #: ";
+
+    for (int j = 0; j < L[min_pos].size(); ++j)
+    {
+        cout << L[min_pos][j] << " ";
+
+    }
+    cout << endl;  
 
 
 
 
     vector<double> difference_comparations;
-    for (int i = 0; i < Bs.size(); ++i)
-    {
-        difference_comparations.push_back(differenceComparation(L[i], Bs[i], xA, xB, yA));
-    }
-    
-    for (int i = 0; i < difference_comparations.size(); ++i)
-    {
-        cout << difference_comparations[i] << " ";
+    if(bA.size() != bB.size()) {
+        cout << "bA and bB must be the same length";
+        exit(0);
     }
 
-    cout << endl;
+    for (int i = 0; i < bA.size(); ++i)
+    {
+        difference_comparations.push_back(differenceComparation(L[i], bA[i], bB[i], xTable, yTable));
+    }
+    // for (int i = 0; i < difference_comparations.size(); ++i)
+    // {
+    //     cout << setw(2) << i + 1<< ". " << setw(15) << difference_comparations[i] << "    ----   L:  " ;
+    //     for (int j = 0; j < L[i].size(); ++j)
+    //     {
+    //         cout << L[i][j] << " ";
 
-    double min_pos = distance(difference_comparations.begin(),min_element(difference_comparations.begin(),difference_comparations.end()));
+    //     }
+    //     cout << endl; 
+    // }
+
+    // cout << endl;
+
+    min_pos = distance(difference_comparations.begin(),min_element(difference_comparations.begin(),difference_comparations.end()));
     cout << "The best model by DIFFERENCE criteria is the model #" << min_pos + 1 << " (" << difference_comparations[min_pos] << ") "<<" with b: ";
-    for (int j = 0; j < Bs[min_pos].size(); ++j)
+    for (int j = 0; j < bA[min_pos].size(); ++j)
     {
-        cout << Bs[min_pos][j] << " ";
+        cout << bA[min_pos][j] << " ";
 
     }
+    cout << endl;
+    
+
     cout << "// with model functions #: ";
 
     for (int j = 0; j < L[min_pos].size(); ++j)
@@ -225,7 +257,7 @@ vector<double> findVectorOfCoefB(const vector<int> &L, const vector<double> &XA,
     // cout << "SIZE XT: " << X_transposed.size() << "x" << X_transposed[0],size() << endl;
     // cout << "SIZE (X*XT)^-1: " << hui.size() << "x" << hui[0],size() << endl;
     // cout << "SIZE X*XT: " << hui.size() << "x" << hui[0],size() << endl;
-    vector<double> calculated_bs (transpose((inverse(X_transposed*X_functions)*X_transposed)*Y)[0]);
+    vector<double> calculated_bs (transpose((inverse((X_transposed*X_functions))*X_transposed)*Y)[0]);
 
     // cout<< ((X_transposed*X_functions)*X_transposed) << endl;
     // cout<< Y[0].size() << endl;
@@ -262,11 +294,11 @@ vector<double> calculate(const vector<int>& indxFunc, double x, const vector<dou
             break;
 
             case 3:
-               calcVal.push_back(b[2] * 4 * x);
+               calcVal.push_back(b[2] * cos(2 * PI * x / 365));
             break;
 
             case 4:
-                 calcVal.push_back(b[3] * sin(24 * PI * x / 365));
+                 calcVal.push_back(b[3] * 5*x);
             break;
 
             case 5:
@@ -274,11 +306,11 @@ vector<double> calculate(const vector<int>& indxFunc, double x, const vector<dou
             break;
 
             case 6:
-                calcVal.push_back(b[5] * sin(12 * PI * x / 365));
+                calcVal.push_back(b[5] * sin(PI * x / 14));
             break;
 
             case 7:
-                calcVal.push_back(b[6] * cos(12 * PI * x / 365));
+                calcVal.push_back(b[6] * cos(PI * x / 14));
             break;
 
             default:
@@ -446,25 +478,21 @@ double squareComparation(const vector<int> &L, const vector<double> &b, const ve
     return result;
 }
 
-double differenceComparation(   const vector<int> &L, 
-                                const vector<double> &b, 
-                                const vector<double> &xA, 
-                                const vector<double> &xB, 
-                                const vector<double> &yB) {
+double differenceComparation(const vector<int> &L, const vector<double> &bA, const vector<double> &bB, const vector<double> &xTable, const vector<double> &yTable) {
     double  result,
             models_diff_sqr_sum = 0.0,
             table_sqr_sum = 0.0;
 
-    for (int i = 0; i < (xA.size() < xB.size() ? xA.size() : xB.size()); ++i)
+    for (int i = 0; i < xTable.size(); ++i)
     {
-        vector<double> model_res_vector_A = calculate(L, xA[i], b);
-        vector<double> model_res_vector_B = calculate(L, xB[i], b);
+        vector<double> model_res_vector_A = calculate(L, xTable[i], bA);
+        vector<double> model_res_vector_B = calculate(L, xTable[i], bB);
         double  model_res_A = accumulate(model_res_vector_A.begin(), model_res_vector_A.end(), 0);
         double  model_res_B = accumulate(model_res_vector_B.begin(), model_res_vector_B.end(), 0);
 
         models_diff_sqr_sum += pow(model_res_A-model_res_B, 2);
 
-        double  table_res = yB[i];    
+        double  table_res = yTable[i];    
         table_sqr_sum += pow(table_res, 2);
     }
 
