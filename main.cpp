@@ -1,4 +1,4 @@
-#include "mpi.h"
+//#include "mpi.h"
 #include <fstream>
 #include <vector>
 #include <cmath>
@@ -27,16 +27,16 @@ double differenceComparation(const vector<int>&, const vector<double>&, const ve
 int main(int argc, char * argv[]) {
     int numtasks, taskid;
 
-    MPI_Init(&argc, &argv); 
-	MPI_Comm_size(MPI_COMM_WORLD, &numtasks); 
-	MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
+    // MPI_Init(&argc, &argv); 
+	// MPI_Comm_size(MPI_COMM_WORLD, &numtasks); 
+	// MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
 
     vector<double> yA;
     vector<double> xA;
     vector<double> yB;
     vector<double> xB;
     
-    ifstream ifile("data.txt");
+    ifstream ifile("test.txt");
 
     if (!ifile.is_open()) {
         cerr << "There was a problem opening the input file!\n";
@@ -55,7 +55,6 @@ int main(int argc, char * argv[]) {
             xB.push_back(indxCounter);
         }
     }
-
 
     // for (int i = 0; i < yB.size(); ++i)
     // {
@@ -104,34 +103,34 @@ int main(int argc, char * argv[]) {
         // cout << endl; 
     }
 
-    vector<double> square_comparations;
-    for (int i = 0; i < Bs.size(); ++i)
-    {
-        square_comparations.push_back(squareComparation(L[i], Bs[i], xB, yB));
-    }
-    
-    // for (int i = 0; i < square_comparations.size(); ++i)
+    // vector<double> square_comparations;
+    // for (int i = 0; i < Bs.size(); ++i)
     // {
-    //     cout << square_comparations[i] << " ";
+    //     square_comparations.push_back(squareComparation(L[i], Bs[i], xB, yB));
     // }
+    
+    // // for (int i = 0; i < square_comparations.size(); ++i)
+    // // {
+    // //     cout << square_comparations[i] << " ";
+    // // }
 
-    // cout << endl;
+    // // cout << endl;
 
-    int min_pos = distance(square_comparations.begin(),min_element(square_comparations.begin(),square_comparations.end()));
-    cout << "The best model by SQR criteria is the model #" << min_pos + 1 << " (" << square_comparations[min_pos] << ") "<<" with b: ";
-    for (int j = 0; j < Bs[min_pos].size(); ++j)
-    {
-        cout << Bs[min_pos][j] << " ";
+    // int min_pos = distance(square_comparations.begin(),min_element(square_comparations.begin(),square_comparations.end()));
+    // cout << "The best model by SQR criteria is the model #" << min_pos + 1 << " (" << square_comparations[min_pos] << ") "<<" with b: ";
+    // for (int j = 0; j < Bs[min_pos].size(); ++j)
+    // {
+    //     cout << Bs[min_pos][j] << " ";
 
-    }
-    cout << "// with model functions #: ";
+    // }
+    // cout << "// with model functions #: ";
 
-    for (int j = 0; j < L[min_pos].size(); ++j)
-    {
-        cout << L[min_pos][j] << " ";
+    // for (int j = 0; j < L[min_pos].size(); ++j)
+    // {
+    //     cout << L[min_pos][j] << " ";
 
-    }
-    cout << endl;  
+    // }
+    // cout << endl;  
 
 
 
@@ -139,17 +138,17 @@ int main(int argc, char * argv[]) {
     vector<double> difference_comparations;
     for (int i = 0; i < Bs.size(); ++i)
     {
-        difference_comparations.push_back(differenceComparation(L[i], Bs[i], xA, xB, yB));
+        difference_comparations.push_back(differenceComparation(L[i], Bs[i], xA, xB, yA));
     }
     
-    // for (int i = 0; i < difference_comparations.size(); ++i)
-    // {
-    //     cout << difference_comparations[i] << " ";
-    // }
+    for (int i = 0; i < difference_comparations.size(); ++i)
+    {
+        cout << difference_comparations[i] << " ";
+    }
 
     cout << endl;
 
-    min_pos = distance(difference_comparations.begin(),min_element(difference_comparations.begin(),difference_comparations.end()));
+    double min_pos = distance(difference_comparations.begin(),min_element(difference_comparations.begin(),difference_comparations.end()));
     cout << "The best model by DIFFERENCE criteria is the model #" << min_pos + 1 << " (" << difference_comparations[min_pos] << ") "<<" with b: ";
     for (int j = 0; j < Bs[min_pos].size(); ++j)
     {
@@ -165,7 +164,6 @@ int main(int argc, char * argv[]) {
     }
     cout << endl;  
 
-
     // for (int j = 0; j < b.size(); ++j)
     // {
     //     cout << b[j] << " ";
@@ -174,7 +172,7 @@ int main(int argc, char * argv[]) {
     // cout << endl;
 
 
-    MPI_Finalize();
+    //MPI_Finalize();
 }
 
 // Find coefficients of b for the model
@@ -264,7 +262,7 @@ vector<double> calculate(const vector<int>& indxFunc, double x, const vector<dou
             break;
 
             case 3:
-               calcVal.push_back(b[2] * cos(2 * PI * x / 365));
+               calcVal.push_back(b[2] * 4 * x);
             break;
 
             case 4:
@@ -430,8 +428,8 @@ string binary(unsigned x)
 
 double squareComparation(const vector<int> &L, const vector<double> &b, const vector<double> &xB, const vector<double> &yB) {
     double  result,
-            model_minus_table_sqr_sum,
-            table_sqr_sum;
+            model_minus_table_sqr_sum = 0.0,
+            table_sqr_sum =0.0;
 
     for (int i = 0; i < xB.size(); ++i)
     {
@@ -454,8 +452,8 @@ double differenceComparation(   const vector<int> &L,
                                 const vector<double> &xB, 
                                 const vector<double> &yB) {
     double  result,
-            models_diff_sqr_sum,
-            table_sqr_sum;
+            models_diff_sqr_sum = 0.0,
+            table_sqr_sum = 0.0;
 
     for (int i = 0; i < (xA.size() < xB.size() ? xA.size() : xB.size()); ++i)
     {
