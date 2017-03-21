@@ -1,4 +1,4 @@
-//#include "mpi.h"
+#include "mpi.h"
 #include <fstream>
 #include <vector>
 #include <cmath>
@@ -28,9 +28,9 @@ double differenceComparation(const vector<int>&, const vector<double>&, const ve
 int main(int argc, char * argv[]) {
     int numtasks, taskid;
 
-    // MPI_Init(&argc, &argv); 
-	// MPI_Comm_size(MPI_COMM_WORLD, &numtasks); 
-	// MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
+    MPI_Init(&argc, &argv); 
+	MPI_Comm_size(MPI_COMM_WORLD, &numtasks); 
+	MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
 
     vector<double> yA;
     vector<double> xA;
@@ -39,7 +39,7 @@ int main(int argc, char * argv[]) {
     vector<double> yTable;
     vector<double> xTable;
     
-    ifstream ifile("test2.txt");
+    ifstream ifile("test.txt");
 
     if (!ifile.is_open()) {
         cerr << "There was a problem opening the input file!\n";
@@ -204,7 +204,7 @@ int main(int argc, char * argv[]) {
     // cout << endl;
 
 
-    //MPI_Finalize();
+    MPI_Finalize();
 }
 
 // Find coefficients of b for the model
@@ -298,7 +298,7 @@ vector<double> calculate(const vector<int>& indxFunc, double x, const vector<dou
             break;
 
             case 4:
-                 calcVal.push_back(b[3] * 5*x);
+                 calcVal.push_back(b[3] * sin(24 * PI * x / 365));
             break;
 
             case 5:
