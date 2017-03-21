@@ -61,27 +61,6 @@ int main(int argc, char * argv[]) {
         yTable.push_back(t);
     }
 
-    // for (int i = 0; i < yB.size(); ++i)
-    // {
-    //     cout << xB[i] << " " << yB[i] << endl ;
-    // }
-
-
-     // vector<vector<double> > r1(5, vector<double>(3, 1));
-   // vector<vector<double> > r2(3, vector<double>(7, 1));
-   // vector<vector<double> > r3(7, vector<double>(3, 1));
-
-   //(r1*r2)*r3;
-   
-    //cout << firstT.size() << secondT.size()<< endl;
-    // double text_xa[] = {1.0, 1.2, 1.3, 1.4, 1.5};
-    // double text_ya[] = {1.1, 1.2, 1.3, 1.4, 1.5};
-
-    // vector<double> x(text_xa, text_xa + sizeof(text_xa) / sizeof(double));
-    // vector<double> y(text_ya, text_ya + sizeof(text_ya) / sizeof(double));
-
-
-
 
     vector <vector<int> > L;
     for (int i = 1; i < 64; ++i)
@@ -99,13 +78,6 @@ int main(int argc, char * argv[]) {
     for (int i = 0; i < L.size(); ++i)
     {
         bA.push_back(vector<double> (findVectorOfCoefB(L[i], xA, yA)));  
-
-        // for (int j = 0; j < Bs.size(); ++j)
-        // {
-        //     cout << Bs[i][j] << " ";
-
-        // }
-        // cout << endl; 
     }
 
     vector<vector<double> > bB;
@@ -113,12 +85,6 @@ int main(int argc, char * argv[]) {
     {
         bB.push_back(vector<double> (findVectorOfCoefB(L[i], xB, yB)));  
 
-        // for (int j = 0; j < Bs.size(); ++j)
-        // {
-        //     cout << Bs[i][j] << " ";
-
-        // }
-        // cout << endl; 
     }
 
 
@@ -127,11 +93,6 @@ int main(int argc, char * argv[]) {
     {
         square_comparations.push_back(squareComparation(L[i], bA[i], xB, yB));
     }
-    
-    // for (int i = 0; i < square_comparations.size(); ++i)
-    // {
-    //     cout << square_comparations[i] << " ";
-    // }
 
     cout << endl;
 
@@ -164,18 +125,7 @@ int main(int argc, char * argv[]) {
     {
         difference_comparations.push_back(differenceComparation(L[i], bA[i], bB[i], xTable, yTable));
     }
-    // for (int i = 0; i < difference_comparations.size(); ++i)
-    // {
-    //     cout << setw(2) << i + 1<< ". " << setw(15) << difference_comparations[i] << "    ----   L:  " ;
-    //     for (int j = 0; j < L[i].size(); ++j)
-    //     {
-    //         cout << L[i][j] << " ";
 
-    //     }
-    //     cout << endl; 
-    // }
-
-    // cout << endl;
 
     min_pos = distance(difference_comparations.begin(),min_element(difference_comparations.begin(),difference_comparations.end()));
     cout << "The best model by DIFFERENCE criteria is the model #" << min_pos + 1 << " (" << difference_comparations[min_pos] << ") "<<" with b: ";
@@ -196,13 +146,6 @@ int main(int argc, char * argv[]) {
     }
     cout << endl;  
 
-    // for (int j = 0; j < b.size(); ++j)
-    // {
-    //     cout << b[j] << " ";
-
-    // }
-    // cout << endl;
-
 
     MPI_Finalize();
 }
@@ -221,46 +164,11 @@ vector<double> findVectorOfCoefB(const vector<int> &L, const vector<double> &XA,
         X_functions.push_back(calculate(L, XA[i]));
     }                    
 
-    // cout << "COUNTED ONE" << endl;
-    // for(int i = 0; i < X_functions.size(); i++){
-    //     for (int j = 0; j < X_functions[0].size(); ++j)
-    //     {
-    //         cout << X_functions[i][j] << " ";
-    
-    //     }
-    //     cout << endl;
-    // }
-    // cout << endl;
-
     X_transposed = transpose(X_functions);
-
-    // cout << "TRANSPOSED ONE" << endl;
-    // for(int i = 0; i < X_transposed.size(); i++){
-    //     for (int j = 0; j < X_transposed[0].size(); ++j)
-    //     {
-    //         cout << X_transposed[i][j] << " ";
-    
-    //     }
-    //     cout << endl;
-    // }
 
     Y = transpose(YT);
 
-    // vector<vector<double> > hui, pizda, pizda_I, upyachka, upyachka_T;
-    // hui = X_transposed*X_functions;
-    // pizda = hui*X_transposed;
-    // pizda_I = inverse(pizda);
-    // upyachka = pizda_I*X_transposed;
-    // upyachka_T = transpose(upyachka);
-
-    // cout << "SIZE X: " << X_functions.size() << "x" << X_functions[0],size() << endl;
-    // cout << "SIZE XT: " << X_transposed.size() << "x" << X_transposed[0],size() << endl;
-    // cout << "SIZE (X*XT)^-1: " << hui.size() << "x" << hui[0],size() << endl;
-    // cout << "SIZE X*XT: " << hui.size() << "x" << hui[0],size() << endl;
     vector<double> calculated_bs (transpose((inverse((X_transposed*X_functions))*X_transposed)*Y)[0]);
-
-    // cout<< ((X_transposed*X_functions)*X_transposed) << endl;
-    // cout<< Y[0].size() << endl;
 
     return calculated_bs;
 }
@@ -318,11 +226,6 @@ vector<double> calculate(const vector<int>& indxFunc, double x, const vector<dou
         }
     }
 
-    // for(int i = 0; i < calcVal.size(); i++)
-    //     cout << calcVal[i] << " ";
-
-    // cout << endl;
-
     return calcVal;
 }
 
@@ -341,17 +244,6 @@ vector<vector<double> > operator*(const vector<vector<double> >& a, const vector
             result[i][j] = sum;
         }
     }
-
-    // for(size_t i = 0; i < result.size(); i++)
-    // {
-    //     for(size_t j = 0; j < result[0].size(); j++)
-    //     {
-    //         cout << result[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
-
-    // cout << endl;
 
     return  result;
 }

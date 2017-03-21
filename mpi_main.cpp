@@ -30,24 +30,6 @@ int main(int argc, char * argv[]) {
     MPI_Init(&argc, &argv); 
 	MPI_Comm_size(MPI_COMM_WORLD, &numtasks); 
 	MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
-    
-
-
-    //cout << xTable[12] << " " << yTable[12] << endl;
-    /*<<<read from file*/
-
-    /*>>>generate all variants of models*/
-    // for (int i = 1; i < 64; ++i)
-    // {
-    //     L.push_back(vector<int>(1,1));
-    //     string binary_number = binary(i);
-    //     for (int j = 0; j < binary_number.size(); ++j) {
-    //         if (binary_number.compare(j,1,"1") == 0) {
-    //             L[i-1].push_back(j + 2);
-    //         }
-    //     }
-    // }
-    /*<<<generate all variants of models*/
 
     
     if(taskid != 0) {
@@ -211,39 +193,39 @@ cout << "read data" << endl;
         int nModelTail = L.size() - ((L.size() / (numtasks - 1)) * (numtasks - 1));
         cout << "MASTER nModel: " << nModelTail << endl;
         if(nModelTail > 0) {
-            // int start = L.size() - nModelTail - 1;
-            // int end = L.size();
+            int start = L.size() - nModelTail - 1;
+            int end = L.size();
 
-            // vector<vector<double> > bA;
-            // for (int i = start; i < end; i++)
-            //     bA.push_back(vector<double> (findVectorOfCoefB(L[i], xA, yA)));
+            vector<vector<double> > bA;
+            for (int i = start; i < end; i++)
+                bA.push_back(vector<double> (findVectorOfCoefB(L[i], xA, yA)));
 
-            // vector<vector<double> > bB;
-            // for (int i = start; i < end; i++)
-            //     bB.push_back(vector<double> (findVectorOfCoefB(L[i], xB, yB)));
+            vector<vector<double> > bB;
+            for (int i = start; i < end; i++)
+                bB.push_back(vector<double> (findVectorOfCoefB(L[i], xB, yB)));
 
-            // vector<double> square_comparations;
-            // for (int i = start; i < end; i++)
-            //     square_comparations.push_back(squareComparation(L[i], bA[i - start], xB, yB)); //maybe fail
+            vector<double> square_comparations;
+            for (int i = start; i < end; i++)
+                square_comparations.push_back(squareComparation(L[i], bA[i - start], xB, yB)); //maybe fail
         
-            // int min_pos_sqr = distance(square_comparations.begin(), min_element(square_comparations.begin(), square_comparations.end()));
+            int min_pos_sqr = distance(square_comparations.begin(), min_element(square_comparations.begin(), square_comparations.end()));
 
-            // results_sqr.push_back(bA[min_pos_sqr]);
-            // index_sqr.push_back(min_pos_sqr);
+            results_sqr.push_back(bA[min_pos_sqr]);
+            index_sqr.push_back(min_pos_sqr);
 
-            // vector<double> difference_comparations;
-            // if(bA.size() != bB.size()) {
-            //     cout << "bA and bB must be the same length";
-            //     exit(0);
-            // }
+            vector<double> difference_comparations;
+            if(bA.size() != bB.size()) {
+                cout << "bA and bB must be the same length";
+                exit(0);
+            }
 
-            // for (int i = start; i < end; i++)
-            //     difference_comparations.push_back(differenceComparation(L[i], bA[i - start], bB[i - start], xTable, yTable));
+            for (int i = start; i < end; i++)
+                difference_comparations.push_back(differenceComparation(L[i], bA[i - start], bB[i - start], xTable, yTable));
 
-            // int min_pos_bias = distance(difference_comparations.begin(), min_element(difference_comparations.begin(), difference_comparations.end()));
-            // results_biasA.push_back(bA[min_pos_bias]);
-            // results_biasB.push_back(bB[min_pos_bias]);
-            // index_bias.push_back(min_pos_bias);
+            int min_pos_bias = distance(difference_comparations.begin(), min_element(difference_comparations.begin(), difference_comparations.end()));
+            results_biasA.push_back(bA[min_pos_bias]);
+            results_biasB.push_back(bB[min_pos_bias]);
+            index_bias.push_back(min_pos_bias);
         }
 
         /*Final comparation*/
@@ -303,46 +285,11 @@ vector<double> findVectorOfCoefB(const vector<int> &L, const vector<double> &XA,
         X_functions.push_back(calculate(L, XA[i]));
     }                    
 
-    // cout << "COUNTED ONE" << endl;
-    // for(int i = 0; i < X_functions.size(); i++){
-    //     for (int j = 0; j < X_functions[0].size(); ++j)
-    //     {
-    //         cout << X_functions[i][j] << " ";
-    
-    //     }
-    //     cout << endl;
-    // }
-    // cout << endl;
-
     X_transposed = transpose(X_functions);
-
-    // cout << "TRANSPOSED ONE" << endl;
-    // for(int i = 0; i < X_transposed.size(); i++){
-    //     for (int j = 0; j < X_transposed[0].size(); ++j)
-    //     {
-    //         cout << X_transposed[i][j] << " ";
-    
-    //     }
-    //     cout << endl;
-    // }
 
     Y = transpose(YT);
 
-    // vector<vector<double> > hui, pizda, pizda_I, upyachka, upyachka_T;
-    // hui = X_transposed*X_functions;
-    // pizda = hui*X_transposed;
-    // pizda_I = inverse(pizda);
-    // upyachka = pizda_I*X_transposed;
-    // upyachka_T = transpose(upyachka);
-
-    // cout << "SIZE X: " << X_functions.size() << "x" << X_functions[0],size() << endl;
-    // cout << "SIZE XT: " << X_transposed.size() << "x" << X_transposed[0],size() << endl;
-    // cout << "SIZE (X*XT)^-1: " << hui.size() << "x" << hui[0],size() << endl;
-    // cout << "SIZE X*XT: " << hui.size() << "x" << hui[0],size() << endl;
     vector<double> calculated_bs (transpose((inverse((X_transposed*X_functions))*X_transposed)*Y)[0]);
-
-    // cout<< ((X_transposed*X_functions)*X_transposed) << endl;
-    // cout<< Y[0].size() << endl;
 
     return calculated_bs;
 }
@@ -400,11 +347,6 @@ vector<double> calculate(const vector<int>& indxFunc, double x, const vector<dou
         }
     }
 
-    // for(int i = 0; i < calcVal.size(); i++)
-    //     cout << calcVal[i] << " ";
-
-    // cout << endl;
-
     return calcVal;
 }
 
@@ -423,17 +365,6 @@ vector<vector<double> > operator*(const vector<vector<double> >& a, const vector
             result[i][j] = sum;
         }
     }
-
-    // for(size_t i = 0; i < result.size(); i++)
-    // {
-    //     for(size_t j = 0; j < result[0].size(); j++)
-    //     {
-    //         cout << result[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
-
-    // cout << endl;
 
     return  result;
 }
